@@ -7,6 +7,9 @@ import org.w3c.dom.NodeList
 import java.io.InputStream
 import javax.xml.parsers.DocumentBuilderFactory
 
+/**
+ * OSM과 CSV 파일을 파싱하는 클래스입니다.
+ */
 class FileParser {
 
     /**
@@ -60,5 +63,45 @@ class FileParser {
         }
 
         return osm
+    }
+
+    /**
+     * CSV 파일을 파싱하여 [GpsPoint] 객체 리스트로 변환합니다.
+     *
+     * @param fileName 파싱할 CSV 파일의 이름
+     * @return 파싱된 [GpsPoint] 객체 리스트
+     */
+    fun parseCsv(fileName: String): List<GpsPoint> {
+        val gpsData = mutableListOf<GpsPoint>()
+        try {
+            val lines = object {}.javaClass.getResourceAsStream("/$fileName")?.bufferedReader()?.readLines()
+            if (lines == null || lines.size <= 1) {
+                println("에러: ${fileName}은 헤더를 포함하여 2줄 미만입니다.")
+                return emptyList()
+            }
+
+            // 헤더 건너뛰기
+            for (line in lines.drop(1)) {
+                val parts = line.split(",")
+                if (parts.size == 5) {
+                    try {
+                        val latitude = parts[0].toDouble()
+                        val longitude = parts[1].toDouble()
+                        val angle = parts[2].toDouble()
+                        val speedKmh = parts[3].toDouble()
+                        val hdop = parts[4].toDouble()
+                        gpsData.add(GpsPoint(latitude, longitude, angle, speedKmh, hdop))
+                    } catch (e: NumberFormatException) {
+                        println("[$fileName:$line] 파싱 오류: ${e.message}")
+                    }
+                } else {
+                    println("[$fileName: $line] column 개수 오류: 파싱을 건너뜁니다.")
+                }
+            }
+        } catch (e: Exception) {
+            println("$fileName 파싱 오류: ${e.message}")
+        }
+
+        return gpsData
     }
 }
