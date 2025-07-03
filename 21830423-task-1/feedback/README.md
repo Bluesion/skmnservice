@@ -30,3 +30,11 @@
         ```bash
         ./gradlew run
         ```
+
+<br>
+
+## 구현 사항
+- CSV parser: GPS 데이터가 담겨 있는 CSV를 파싱합니다.
+- OSM parser: 도로 데이터가 담겨 있는 OSM을 파싱합니다.
+- Harversine Calculator: 두 좌표 사이의 거리를 계산합니다.
+- Logger: 더 편한 로깅을 위한 클래스입니다.
